@@ -7,25 +7,107 @@ basic context management for sessions, and execution of SQL statements.
 It also enables foregin key constraints and uses WAL mode.
 """
 
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Mapping, Optional
 
 import sqlalchemy
 from sqlalchemy import text
+from sqlalchemy.dialects.sqlite import (
+    BLOB as BLOB,
+)
+from sqlalchemy.dialects.sqlite import (
+    BOOLEAN as BOOLEAN,
+)
+from sqlalchemy.dialects.sqlite import (
+    CHAR as CHAR,
+)
+from sqlalchemy.dialects.sqlite import (
+    DATE as DATE,
+)
+from sqlalchemy.dialects.sqlite import (
+    DATETIME as DATETIME,
+)
+from sqlalchemy.dialects.sqlite import (
+    DECIMAL as DECIMAL,
+)
+from sqlalchemy.dialects.sqlite import (
+    FLOAT as FLOAT,
+)
+from sqlalchemy.dialects.sqlite import (
+    INTEGER as INTEGER,
+)
+from sqlalchemy.dialects.sqlite import (
+    JSON as JSON,
+)
+from sqlalchemy.dialects.sqlite import (
+    NUMERIC as NUMERIC,
+)
+from sqlalchemy.dialects.sqlite import (
+    REAL as REAL,
+)
+from sqlalchemy.dialects.sqlite import (
+    SMALLINT as SMALLINT,
+)
+from sqlalchemy.dialects.sqlite import (
+    TEXT as TEXT,
+)
+from sqlalchemy.dialects.sqlite import (
+    TIME as TIME,
+)
+from sqlalchemy.dialects.sqlite import (
+    TIMESTAMP as TIMESTAMP,
+)
+from sqlalchemy.dialects.sqlite import (
+    VARCHAR as VARCHAR,
+)
 from sqlalchemy.engine import Connection
+from sqlalchemy.types import TypeDecorator
+
 from .connector import Connector
 
-from sqlalchemy.dialects.sqlite import *  # noqa: F403
 
-class _Config():
+class _Config:
     def __init__(self):
         self.data_dir: Optional[Path | str] = None
         self.default_engine_kwargs = {"pool_size": 100}
+
 
 Config = _Config()
 CONNECTORS = {}
 
 DEFAULT_KWARGS = {"pool_size": 100}
+
+
+class TZDateTime(TypeDecorator):
+    """
+    This is a custom SQLAlchemy type for storing timezone-aware datetimes
+    in SQLite.
+    It ensures that the datetime is stored in UTC as an integer timestamp
+    and retrieved as a timezone-aware datetime object.
+    """
+
+    impl = INTEGER
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, datetime):
+            if value is not None:
+                if value.tzinfo is None:
+                    raise ValueError("Naive datetimes not allowed!")
+                # UTC timestamp
+                return int(value.timestamp())
+        elif isinstance(value, int):
+            return value
+        else:
+            raise ValueError(f"Invalid datetime type provided {type(value)}")
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            # This will parse offset-aware ISO strings
+            return datetime.fromtimestamp(value).astimezone()
+        return value
+
 
 def _resolve_path(title) -> Path:
     global Config

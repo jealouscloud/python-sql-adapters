@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Iterator, Optional, Any, NamedTuple, TypeVar
+from typing import Any, Iterator, NamedTuple, Optional, TypeVar
+
 from sqlalchemy import CursorResult, Executable
 from sqlalchemy.engine import Connection
 from sqlalchemy.engine.interfaces import (
@@ -17,15 +18,12 @@ class Connector(ABC):
     An abstract base class for SQL database connectors.
     """
 
+    @property
     @abstractmethod
     def connection(self) -> Connection:
         """
         Get the connection to database.
         """
-        pass
-
-    @abstractmethod
-    def connect(self):
         pass
 
     def execute(
@@ -69,7 +67,7 @@ class Connector(ABC):
         param_check(result, result_type)
 
         for row in result:
-            yield result_type(*row)
+            yield result_type(*row)  # type: ignore[arg-type]
 
     def result_of(
         self,
@@ -99,14 +97,12 @@ class Connector(ABC):
             *args,
             **kwargs,
         )
-        param_check(result, result_type)
-        for k in result.all():
-            yield result_type(*k)
+        return self.read_values(result, result_type)
 
     @abstractmethod
     def __enter__(self):
         """Establish a connection to the database and start transaction"""
-        pass
+        return self
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
