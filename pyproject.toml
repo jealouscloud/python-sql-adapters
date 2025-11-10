@@ -1,0 +1,16 @@
+[project]
+name = "sql-adapters"
+version = "0.1.0"
+description = "SQL adapters for various databases - SQLAlchemy simplifed"
+readme = "README.md"
+authors = [
+    { name = "jealouscloud", email = "github@noaha.org" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "sqlalchemy>=2.0.44",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
