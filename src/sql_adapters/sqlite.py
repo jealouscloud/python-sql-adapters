@@ -222,6 +222,5 @@ class SqliteAdapter(Connector):
                 self.conn.commit()
             else:
                 self.conn.rollback()
-            self.conn.__exit__(exc_type, exc_val, exc_tb)
             self.conn.close()
             self.conn = None
