@@ -68,6 +68,16 @@ from .connector import Connector
 
 
 class _Config:
+    """
+    Global configuraiton for SQLite adapters
+
+    data_dir: Optional[Path | str]
+        Directory where SQLite database files are stored.
+
+    default_engine_kwargs: dict[str, Any]
+        Default keyword arguments passed to SQLAlchemy engine.
+    """
+
     def __init__(self):
         self.data_dir: Optional[Path | str] = None
         self.default_engine_kwargs = {"pool_size": 100}
