@@ -96,16 +96,16 @@ class TZDateTime(TypeDecorator):
                 if value.tzinfo is None:
                     raise ValueError("Naive datetimes not allowed!")
                 # UTC timestamp
-                return int(value.timestamp())
+                return int(value.timestamp() * 1_000_000)
         elif isinstance(value, int):
-            return value
+            return value * 1_000_000
         else:
             raise ValueError(f"Invalid datetime type provided {type(value)}")
 
     def process_result_value(self, value, dialect):
         if value is not None:
             # This will parse offset-aware ISO strings
-            return datetime.fromtimestamp(value).astimezone()
+            return datetime.fromtimestamp(value / 1_000_000).astimezone()
         return value
 
 
@@ -165,10 +165,11 @@ class SqliteAdapter(Connector):
         self.timeout = timeout
         self.enable_foreign_keys = enable_foreign_keys
         self.wal_mode = wal_mode
+
         if engine_kwargs is None:
             engine_kwargs = {}
         global Config
-        _engine_kwargs = Config.default_engine_kwargs | engine_kwargs
+        _engine_kwargs = Config.default_engine_kwargs.copy() | engine_kwargs
 
         uri = f"{self.path}:{self.mode}"
         if uri in CONNECTORS:
