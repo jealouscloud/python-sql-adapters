@@ -84,6 +84,8 @@ class _Config:
 
 
 Config = _Config()
+
+# cache of created engines
 CONNECTORS = {}
 
 
