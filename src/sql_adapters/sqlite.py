@@ -141,7 +141,7 @@ class SqliteAdapter(Connector):
         timeout=5,
         enable_foreign_keys: bool = True,
         wal_mode: bool = True,
-        **engine_kwargs: Optional[Mapping],
+        engine_kwargs: Optional[Mapping[str, Any]] = None,
     ):
         """
         Initialize the SQLite connector.
@@ -151,7 +151,7 @@ class SqliteAdapter(Connector):
         :param timeout: Timeout for database operations
         :param enable_foreign_keys: Enable foreign key constraints
         :param wal_mode: Enable Write-Ahead Logging
-        :param engine_kwargs: Additional engine parameters
+        :param engine_kwargs: Additional engine parameters passed to SQLAlchemy
         """
         if Path(path).is_absolute():
             self.path = Path(path)
@@ -166,10 +166,10 @@ class SqliteAdapter(Connector):
         self.enable_foreign_keys = enable_foreign_keys
         self.wal_mode = wal_mode
 
-        if engine_kwargs is None:
-            engine_kwargs = {}
         global Config
-        _engine_kwargs = Config.default_engine_kwargs.copy() | engine_kwargs
+        _engine_kwargs: dict[str, Any] = Config.default_engine_kwargs.copy()
+        if engine_kwargs is not None:
+            _engine_kwargs.update(engine_kwargs)
 
         uri = f"{self.path}:{self.mode}"
         if uri in CONNECTORS:
