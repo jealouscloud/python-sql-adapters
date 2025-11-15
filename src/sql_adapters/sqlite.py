@@ -83,8 +83,8 @@ class TZDateTime(TypeDecorator):
     """
     This is a custom SQLAlchemy type for storing timezone-aware datetimes
     in SQLite.
-    It ensures that the datetime is stored in UTC as an integer timestamp
-    and retrieved as a timezone-aware datetime object.
+    It ensures that the datetime is stored in UTC as an integer timestamp with
+    microsecond precision and retrieved as a timezone-aware datetime object.
     """
 
     impl = INTEGER
@@ -97,8 +97,8 @@ class TZDateTime(TypeDecorator):
                     raise ValueError("Naive datetimes not allowed!")
                 # UTC timestamp
                 return int(value.timestamp() * 1_000_000)
-        elif isinstance(value, int):
-            return value * 1_000_000
+        elif isinstance(value, (int | float)):
+            return int(value * 1_000_000)
         else:
             raise ValueError(f"Invalid datetime type provided {type(value)}")
 
