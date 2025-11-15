@@ -181,15 +181,15 @@ class SqliteAdapter(Connector):
         if engine_kwargs is not None:
             _engine_kwargs.update(engine_kwargs)
 
-        uri = f"{self.path}:{self.mode}"
-        if uri in CONNECTORS:
-            engine = CONNECTORS[uri]
+        cache_url = f"{self.path}:{self.mode}"
+        if cache_url in CONNECTORS:
+            engine = CONNECTORS[cache_url]
         else:
             engine = sqlalchemy.create_engine(
                 f"sqlite:///{self.connect_string()}",
                 **_engine_kwargs,
             )
-            CONNECTORS[uri] = engine
+            CONNECTORS[cache_url] = engine
         self.engine = engine
 
     @property
