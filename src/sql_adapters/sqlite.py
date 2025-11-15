@@ -86,8 +86,6 @@ class _Config:
 Config = _Config()
 CONNECTORS = {}
 
-DEFAULT_KWARGS = {"pool_size": 100}
-
 
 class TZDateTime(TypeDecorator):
     """
